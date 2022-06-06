@@ -37,14 +37,14 @@ while True:
     # Show the image and keep streaming
     _, img = cam.read()
     cv2.imshow("Frame", img)
-    cv2.imwrite("../classifier/training/images/FrontStreet_"+str(datetime.timestamp(datetime.now()))+".jpg", img)
+    cv2.imwrite("./classifier/training/images/FrontStreet_"+str(datetime.timestamp(datetime.now()))+".jpg", img)
     
     # check to wait or save files
     if photos_in_group >= 3600:
-        shutil.make_archive("../classifier/training/zipped/"+str(datetime.timestamp(datetime.now())), 'zip', "../classifier/training/images")
+        shutil.make_archive("./classifier/training/zipped/"+str(datetime.timestamp(datetime.now())), 'zip', "./classifier/training/images")
 
-        for filename in os.listdir("../classifier/training/images"):
-            file_path = os.path.join("../classifier/training/images", filename)
+        for filename in os.listdir("./classifier/training/images"):
+            file_path = os.path.join("./classifier/training/images", filename)
             try:
                 if os.path.isfile(file_path) or os.path.islink(file_path):
                     os.unlink(file_path)
