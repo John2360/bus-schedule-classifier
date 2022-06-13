@@ -6,15 +6,11 @@ import cv2
 import os
 import shutil
 
-# folder = "1654124218.104456"
-# folder = "1654127995.838634"
-# folder = "1654135568.511279"
-# folder = "1654131783.18748"
-folder = "1654191971.893699"
-flagged_images = []
+completed_folders = ['1654124218.104456', '1654127995.838634', '1654380298.17326', '1654474401.603433', '1654478183.898067', '1654350148.025803', '1654353909.618664', '1654387856.880012', '1654391636.736659', '1654395403.311944', '1654481955.309156']
+folder = completed_folders[-1]
 
-for filename in os.listdir("../classifier/data/"+folder):
-    file_path = os.path.join("../classifier/data/"+folder, filename)
+for filename in os.listdir("./classifier/training/images/"+folder):
+    file_path = os.path.join("./classifier/training/images/"+folder, filename)
 
     img = cv2.imread(file_path)
     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -25,7 +21,6 @@ for filename in os.listdir("../classifier/data/"+folder):
     # Determine if the color exists on the image
     if (mask>0).mean()*100 >= 1:
         print((mask>0).mean()*100)
-        flagged_images.append(file_path)
 
         croped = cv2.bitwise_and(img, img, mask=mask)
         # cv2.imshow("mask", mask)
@@ -33,13 +28,13 @@ for filename in os.listdir("../classifier/data/"+folder):
         
         c = cv2.waitKey(0) % 256
 
-        if c == ord('u'):
-            shutil.move(file_path, "../classifier/data/up_street/"+filename)
-        elif c == ord('d'):
-            shutil.move(file_path, "../classifier/data/down_street/"+filename)
+        if c == ord(' '):
+            shutil.move(file_path, "./classifier/training/reviewed/"+filename)
+        # elif c == ord('d'):
+        #     shutil.move(file_path, "../classifier/data/down_street/"+filename)
+        else:
+            os.remove(file_path)
 
     else:
+        os.remove(file_path)
         print("Bus not present")
-
-print("Images collected: ")
-print(flagged_images)
