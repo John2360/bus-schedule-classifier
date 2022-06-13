@@ -23,15 +23,19 @@ class BusMovementTracker:
         for id in list(self.movement_dict):
             if self.frame_counter-self.movement_dict[id]["last_seen"] >= 30:
 
-
-                final_direction = self.final_direction(self.movement_dict[id]["directions"])
-                if self.valid_tracks[-1]["direction"] == final_direction:
-                    if self.frame_counter - self.valid_tracks[-1]["frame"] >= 20:
+                if len(self.movement_dict[id]["directions"]) >= 2:
+                    final_direction = self.final_direction(self.movement_dict[id]["directions"])
+                    if len(self.valid_tracks) > 0 and self.valid_tracks[-1]["direction"] == final_direction:
+                        if self.frame_counter - self.valid_tracks[-1]["frame"] >= 20:
+                            cv2.imwrite("../detections/"+str(self.frame_counter)+"_"+final_direction+"_bus.jpg", self.movement_dict[id]["last_image"])
+                            del self.movement_dict[id]
+                            self.valid_tracks.append({"direction": final_direction, "frame": self.frame_counter})
+                            
+                    else:
                         cv2.imwrite("../detections/"+str(self.frame_counter)+"_"+final_direction+"_bus.jpg", self.movement_dict[id]["last_image"])
                         del self.movement_dict[id]
-                else:
-                    cv2.imwrite("../detections/"+str(self.frame_counter)+"_"+final_direction+"_bus.jpg", self.movement_dict[id]["last_image"])
-                    del self.movement_dict[id]
+                        self.valid_tracks.append({"direction": final_direction, "frame": self.frame_counter})
+
 
     def left_or_right(self, position_new, position_old):
         move1 = position_new[0]-position_old[0]
