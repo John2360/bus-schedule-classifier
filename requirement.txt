@@ -1,0 +1,4 @@
+filterpy==1.4.5
+scikit-image==0.17.2
+tensorflow==2.9.1
+object_detection
