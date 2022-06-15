@@ -23,13 +23,14 @@ class BusMovementTracker:
 
                 if len(self.movement_dict[id]["directions"]) >= 2:
                     final_direction = self.final_direction(self.movement_dict[id]["directions"])
+                    print(final_direction)
                     if len(self.valid_tracks) > 0 and self.valid_tracks[-1]["direction"] == final_direction:
                         if self.frame_counter - self.valid_tracks[-1]["frame"] >= 20:
                             try:
                                 cv2.imwrite("../detections/"+str(self.frame_counter)+"_"+final_direction+"_bus.jpg", self.movement_dict[id]["last_image"])
                             except:
                                 print("Error: failed to write bus image.")
-                                
+
                             del self.movement_dict[id]
                             self.valid_tracks.append({"direction": final_direction, "frame": self.frame_counter})
                             
