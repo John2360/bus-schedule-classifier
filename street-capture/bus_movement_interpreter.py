@@ -15,8 +15,6 @@ class BusMovementTracker:
         else:
             self.movement_dict[id] = {"directions": [], "position": (position[0], position[1]), "last_seen": self.frame_counter, "last_image": image}
 
-        # print(self.movement_dict)
-
     def clean_up(self):
         self.frame_counter += 1
 
@@ -27,12 +25,20 @@ class BusMovementTracker:
                     final_direction = self.final_direction(self.movement_dict[id]["directions"])
                     if len(self.valid_tracks) > 0 and self.valid_tracks[-1]["direction"] == final_direction:
                         if self.frame_counter - self.valid_tracks[-1]["frame"] >= 20:
-                            cv2.imwrite("../detections/"+str(self.frame_counter)+"_"+final_direction+"_bus.jpg", self.movement_dict[id]["last_image"])
+                            try:
+                                cv2.imwrite("../detections/"+str(self.frame_counter)+"_"+final_direction+"_bus.jpg", self.movement_dict[id]["last_image"])
+                            except:
+                                print("Error: failed to write bus image.")
+                                
                             del self.movement_dict[id]
                             self.valid_tracks.append({"direction": final_direction, "frame": self.frame_counter})
                             
                     else:
-                        cv2.imwrite("../detections/"+str(self.frame_counter)+"_"+final_direction+"_bus.jpg", self.movement_dict[id]["last_image"])
+                        try:
+                            cv2.imwrite("../detections/"+str(self.frame_counter)+"_"+final_direction+"_bus.jpg", self.movement_dict[id]["last_image"])
+                        except:
+                            print("Error: failed to write bus image.")
+
                         del self.movement_dict[id]
                         self.valid_tracks.append({"direction": final_direction, "frame": self.frame_counter})
 
