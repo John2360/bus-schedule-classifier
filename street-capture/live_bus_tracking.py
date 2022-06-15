@@ -185,6 +185,7 @@ def run(
 
             txt_path = str(save_dir / 'tracks' / txt_file_name)  # im.txt
             s += '%gx%g ' % im.shape[2:]  # print string
+            og_image = im0.copy()
             imc = im0.copy() if save_crop else im0  # for save_crop
 
             annotator = Annotator(im0, line_width=2, pil=not ascii)
@@ -247,7 +248,7 @@ def run(
 
             # Stream results
             # Run Detection Cleanup
-            bus_tracker.clean_up(np.asarray(im0))
+            bus_tracker.clean_up(np.asarray(og_image))
             im0 = annotator.result()
             if show_vid:
                 cv2.imshow(str(p), im0)
