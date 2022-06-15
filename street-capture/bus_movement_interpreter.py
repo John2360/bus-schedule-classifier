@@ -1,4 +1,5 @@
 import cv2
+import os
 
 class BusMovementTracker:
     movement_dict = {}
@@ -11,11 +12,11 @@ class BusMovementTracker:
             direction_list = self.movement_dict[id]["directions"]
             direction_list.append(self.left_or_right(position, self.movement_dict[id]["position"]))
 
-            self.movement_dict[id] = {"directions": direction_list, "position": (position[0], position[1]), "last_seen": self.frame_counter, "last_image": image}
+            self.movement_dict[id] = {"directions": direction_list, "position": (position[0], position[1]), "first_seen": self.movement_dict[id]["first_seen"], "last_seen": self.frame_counter, "last_image": image}
         else:
-            self.movement_dict[id] = {"directions": [], "position": (position[0], position[1]), "last_seen": self.frame_counter, "last_image": image}
+            self.movement_dict[id] = {"directions": [], "position": (position[0], position[1]), "first_seen": self.frame_counter, "last_seen": self.frame_counter, "last_image": image}
 
-    def clean_up(self):
+    def clean_up(self, image):
         self.frame_counter += 1
 
         for id in list(self.movement_dict):
@@ -27,7 +28,7 @@ class BusMovementTracker:
                     if len(self.valid_tracks) > 0 and self.valid_tracks[-1]["direction"] == final_direction:
                         if self.frame_counter - self.valid_tracks[-1]["frame"] >= 20:
                             try:
-                                cv2.imwrite("../detections/"+str(self.frame_counter)+"_"+final_direction+"_bus.jpg", self.movement_dict[id]["last_image"])
+                                cv2.imwrite("detections/"+str(self.movement_dict[id]["first_seen"])+"_bus/"+str(self.frame_counter)+"_"+final_direction+"_bus.jpg", self.movement_dict[id]["last_image"])
                             except:
                                 print("Error: failed to write bus image.")
 
@@ -36,12 +37,19 @@ class BusMovementTracker:
                             
                     else:
                         try:
-                            cv2.imwrite("../detections/"+str(self.frame_counter)+"_"+final_direction+"_bus.jpg", self.movement_dict[id]["last_image"])
+                            cv2.imwrite("detections/"+str(self.movement_dict[id]["first_seen"])+"_bus/"+str(self.frame_counter)+"_"+final_direction+"_bus.jpg", self.movement_dict[id]["last_image"])
                         except:
                             print("Error: failed to write bus image.")
 
                         del self.movement_dict[id]
                         self.valid_tracks.append({"direction": final_direction, "frame": self.frame_counter})
+            
+            else:
+                if not os.path.exists("detections/"+str(self.movement_dict[id]["first_seen"])+"_bus"):
+                    os.makedirs("detections/"+str(self.movement_dict[id]["first_seen"])+"_bus")
+                
+                cv2.imwrite("detections/"+str(self.movement_dict[id]["first_seen"])+"_bus/"+str(self.frame_counter)+"_bus.jpg", image)
+
 
 
     def left_or_right(self, position_new, position_old):

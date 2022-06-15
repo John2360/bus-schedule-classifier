@@ -247,7 +247,7 @@ def run(
 
             # Stream results
             # Run Detection Cleanup
-            bus_tracker.clean_up()
+            bus_tracker.clean_up(np.asarray(im0))
             im0 = annotator.result()
             if show_vid:
                 cv2.imshow(str(p), im0)
