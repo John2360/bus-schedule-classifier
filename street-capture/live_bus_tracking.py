@@ -45,7 +45,7 @@ logging.getLogger().removeHandler(logging.getLogger().handlers[0])
 
 @torch.no_grad()
 def run(
-        source='0',
+        source='../test.mp4',
         yolo_weights=WEIGHTS / 'best.pt',  # model.pt path(s),
         strong_sort_weights=WEIGHTS / 'osnet_x0_25_msmt17.pt',  # model.pt path,
         config_strongsort=ROOT / 'strong_sort/configs/strong_sort.yaml',
@@ -142,6 +142,8 @@ def run(
     dt, seen = [0.0, 0.0, 0.0, 0.0], 0
     curr_frames, prev_frames = [None] * nr_sources, [None] * nr_sources
     for frame_idx, (path, im, im0s, vid_cap, s) in enumerate(dataset):
+        
+        raw_image = np.asarray(im0s.copy())
         t1 = time_sync()
         im = torch.from_numpy(im).to(device)
         im = im.half() if half else im.float()  # uint8 to fp16/32
@@ -185,7 +187,6 @@ def run(
 
             txt_path = str(save_dir / 'tracks' / txt_file_name)  # im.txt
             s += '%gx%g ' % im.shape[2:]  # print string
-            og_image = im0.copy()
             imc = im0.copy() if save_crop else im0  # for save_crop
 
             annotator = Annotator(im0, line_width=2, pil=not ascii)
@@ -248,7 +249,7 @@ def run(
 
             # Stream results
             # Run Detection Cleanup
-            bus_tracker.clean_up(np.asarray(og_image))
+            bus_tracker.clean_up(raw_image, np.asarray(im0))
             im0 = annotator.result()
             if show_vid:
                 cv2.imshow(str(p), im0)
