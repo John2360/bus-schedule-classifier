@@ -3,6 +3,9 @@ from bus_movement_interpreter import BusMovementTracker
 import argparse
 
 import os
+from dotenv import load_dotenv
+load_dotenv('../.env')
+
 # limit the number of cpus used by high performance libraries
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
@@ -45,8 +48,8 @@ logging.getLogger().removeHandler(logging.getLogger().handlers[0])
 
 @torch.no_grad()
 def run(
-        source='../test.mp4',
-        yolo_weights=WEIGHTS / 'best.pt',  # model.pt path(s),
+        source=os.getenv('cam'),
+        yolo_weights=WEIGHTS / os.getenv('model'),  # model.pt path(s),
         strong_sort_weights=WEIGHTS / 'osnet_x0_25_msmt17.pt',  # model.pt path,
         config_strongsort=ROOT / 'strong_sort/configs/strong_sort.yaml',
         imgsz=(640, 640),  # inference size (height, width)
@@ -143,7 +146,6 @@ def run(
     curr_frames, prev_frames = [None] * nr_sources, [None] * nr_sources
     for frame_idx, (path, im, im0s, vid_cap, s) in enumerate(dataset):
         
-        raw_image = np.asarray(im0s.copy())
         t1 = time_sync()
         im = torch.from_numpy(im).to(device)
         im = im.half() if half else im.float()  # uint8 to fp16/32
@@ -188,6 +190,7 @@ def run(
             txt_path = str(save_dir / 'tracks' / txt_file_name)  # im.txt
             s += '%gx%g ' % im.shape[2:]  # print string
             imc = im0.copy() if save_crop else im0  # for save_crop
+            raw_image = imc.copy()
 
             annotator = Annotator(im0, line_width=2, pil=not ascii)
             if cfg.STRONGSORT.ECC:  # camera motion compensation
